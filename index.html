@@ -452,6 +452,58 @@
             animation: glow 3s infinite alternate;
         }
     </style>
+    <!-- Responsive Fixes -->
+    <style>
+        @media (max-width: 768px) {
+            .note-container {
+                width: 85%;
+                /* keep top 50% from desktop */
+            }
+
+            .note-paper {
+                padding: 1.5rem;
+                padding-bottom: 3rem;
+                /* Extra space at bottom so button doesn't cover text */
+            }
+
+            .note-paper h3 {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+            }
+
+            .note-paper p {
+                font-size: 1.0rem;
+                /* Compact text */
+                line-height: 1.4;
+                margin-bottom: 0.5rem;
+            }
+
+            .signature {
+                margin-top: 1rem;
+                font-size: 1.2rem;
+            }
+
+            .accept-btn {
+                bottom: -25px;
+                /* Overlap/touch the bottom of the note */
+                width: 60px;
+                height: 60px;
+            }
+
+            .seal-inner {
+                width: 50px;
+                height: 50px;
+                font-size: 0.75rem;
+            }
+
+            /* Ensure it doesn't get cut off on very small screens */
+            .note-container.visible {
+                /* Override the rotate to save corner space if needed, 
+                   or keep it but ensure scale fits */
+                transform: translate(-50%, -50%) scale(1) rotate(-1deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -480,7 +532,7 @@
     </div>
 
     <!-- Continue Button (Hidden initially) -->
-    <button class="continue-btn" id="continueBtn">Continue to Bloom</button>
+    <button class="continue-btn" id="continueBtn">Continue</button>
 
     <!-- Note Overlay (Hidden initially) -->
     <div id="note" class="note-container">
