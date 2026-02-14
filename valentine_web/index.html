@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,247 @@
     <!-- Cinematic Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff3333;
+            --text-color: #fff0f0;
+            --shadow-color: rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Cinematic Background */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            /* Start hidden for fade-in */
+            animation: fadeInBg 3s ease-out forwards;
+            filter: brightness(0.6) contrast(1.1);
+            /* Cinematic look */
+        }
+
+        /* Floating/Falling Petals Canvas */
+        #petalCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Central Content */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            padding: 3rem;
+            border: none;
+            box-shadow: none;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: failInUp 2s ease-out 1.5s forwards;
+            transition: all 1s ease;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-size: clamp(3rem, 8vw, 6rem);
+            text-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(255, 0, 0, 0.5);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            transition: opacity 0.5s ease, transform 1.5s ease;
+            /* Adjusted transition */
+        }
+
+        /* New Header Title (Initially Hidden) */
+        h1.header-title {
+            position: fixed;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 3rem;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+            transition: opacity 1s ease;
+            /* Fade in duration */
+        }
+
+        p.subtitle {
+            color: #ffdce0;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-family: 'Playfair Display', serif;
+            font-weight: 300;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            transition: opacity 1s ease;
+        }
+
+        /* Interactive Button */
+        .play-btn {
+            margin-top: 2rem;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50px;
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 3s forwards;
+            transition: opacity 1s ease, transform 0.3s ease, background 0.3s ease;
+        }
+
+        .play-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Overlay for vignette */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* BLOOM STATE STYLES */
+        body.bloomed .glass-panel h1.main-title {
+            /* Fade out and move up slightly to simulate transition to header */
+            opacity: 0;
+            transform: translateY(-50px) scale(0.8);
+            transition: opacity 1.0s ease, transform 1.5s ease;
+        }
+
+        body.bloomed h1.header-title {
+            opacity: 1;
+            /* Fade in new header */
+            transition-delay: 0.5s;
+            /* Delay slightly to overlap with fade out */
+        }
+
+
+        body.bloomed .glass-panel {
+            padding: 0;
+            /* Collapse padding */
+            pointer-events: none;
+        }
+
+        body.bloomed .subtitle,
+        body.bloomed .play-btn {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+        }
+
+
+        /* Animations */
+        @keyframes fadeInBg {
+            0% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes failInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Glow animation for text */
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 10px var(--primary-color);
+            }
+
+            50% {
+                text-shadow: 0 0 20px var(--primary-color), 0 0 30px #ff0055;
+            }
+
+            100% {
+                text-shadow: 0 0 10px var(--primary-color);
+            }
+        }
+
+        h1 {
+            animation: glow 3s infinite alternate;
+        }
+    </style>
 </head>
+
 <body>
 
     <!-- Background -->
@@ -23,10 +262,13 @@
     <!-- Falling Petals Canvas -->
     <canvas id="petalCanvas"></canvas>
 
+    <!-- Header Title (Wait for bloom) -->
+    <h1 class="header-title">Happy Valentine's Day</h1>
+
     <!-- Main Content -->
     <div class="content">
         <div class="glass-panel">
-            <h1>Happy Valentine's Day</h1>
+            <h1 class="main-title">Happy<br>Valentine's<br>Day</h1>
             <p class="subtitle">For the most beautiful flower</p>
             <button class="play-btn" id="startBtn">Click to Bloom</button>
         </div>
@@ -34,11 +276,10 @@
 
     <!-- Background Music (Hidden) -->
     <audio id="bgMusic" loop>
-        <!-- Placeholder for royalty free cinematic romantic music -->
-        <!-- User can replace this source -->
         <source src="" type="audio/mp3">
     </audio>
 
     <script src="script.js"></script>
 </body>
+
 </html>
