@@ -395,7 +395,59 @@ continueBtn.addEventListener('click', () => {
         setTimeout(() => {
             // Show Real Note Overlay
             document.getElementById('note').classList.add('visible');
+
+            // Show Accept Button after Note fades in (1s duration for note, wait slightly more)
+            setTimeout(() => {
+                document.getElementById('acceptBtn').classList.add('visible');
+            }, 1000);
+
         }, 2000);
 
     }, 5000);
+});
+
+// Accept Button Interaction
+document.getElementById('acceptBtn').addEventListener('click', () => {
+    // 1. Hide Button (clicked)
+    document.getElementById('acceptBtn').style.transform = "translateX(-50%) scale(0)";
+
+    // 3. Show 'Approved' Stamp on Note
+    setTimeout(() => {
+        document.getElementById('stampMark').classList.add('visible');
+
+        // 4. Fire Confetti!
+        var duration = 3 * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+            // launch a few confetti from the left edge
+            confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#ff0000', '#ffeb3b', '#ffffff']
+            });
+            // and launch a few from the right edge
+            confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#ff0000', '#ffeb3b', '#ffffff']
+            });
+
+            // Keep going forever
+            requestAnimationFrame(frame);
+        }());
+
+        // Fire a big burst immediately too
+        confetti({
+            origin: { y: 0.7 },
+            zIndex: 100,
+            particleCount: 150,
+            spread: 100
+        });
+
+    }, 300); // Slight delay for button shrink animation
 });

@@ -266,6 +266,96 @@
             font-family: 'Great Vibes', cursive;
         }
 
+        /* Accept Button (Wax Seal) */
+        .accept-btn {
+            position: absolute;
+            left: 50%;
+            bottom: -80px;
+            /* Belwo the note */
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: #b71c1c;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.2s ease, opacity 1s ease;
+        }
+
+        .accept-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .accept-btn:active {
+            transform: translateX(-50%) scale(0.9);
+        }
+
+        .seal-inner {
+            width: 65px;
+            height: 65px;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffcdd2;
+            font-family: 'Patrick Hand', cursive;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.1;
+            font-size: 0.9rem;
+        }
+
+        /* Stamp Mark on Note */
+        .stamp-mark {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 2.5rem;
+            color: #d32f2f;
+            border: 3px solid #d32f2f;
+            padding: 5px 15px;
+            border-radius: 5px;
+            transform: rotate(-15deg) scale(2);
+            opacity: 0;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 35;
+        }
+
+        /* Animation for Stamping */
+        @keyframes stampIn {
+            0% {
+                opacity: 0;
+                transform: rotate(-15deg) scale(3);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: rotate(-15deg) scale(0.9);
+            }
+
+            100% {
+                opacity: 0.7;
+                /* Faded ink look */
+                transform: rotate(-15deg) scale(1);
+            }
+        }
+
+        .stamp-mark.visible {
+            animation: stampIn 0.3s cubic-bezier(0, 0, 0.2, 1) forwards;
+        }
+
         /* Overlay for vignette */
         .vignette {
             position: fixed;
@@ -402,6 +492,14 @@
             <p>Tối nay rảnh mình Call Video xíu nhen? Muốn nghe giọng và thấy em cười trực tiếp chứ ngắm qua hình chưa
                 đã! 🥰</p>
             <div class="signature">- Anh -</div>
+            <!-- Dynamic Stamp Mark -->
+            <div id="stampMark" class="stamp-mark">ĐỒNG Ý</div>
+        </div>
+        <!-- Accept Button (Seal) -->
+        <div id="acceptBtn" class="accept-btn">
+            <div class="seal-inner">
+                <span>Chấp<br>thuận</span>
+            </div>
         </div>
     </div>
 
@@ -410,6 +508,7 @@
         <source src="" type="audio/mp3">
     </audio>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
 </body>
 
