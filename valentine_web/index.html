@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&family=Patrick+Hand&display=swap"
         rel="stylesheet">
     <style>
         :root {
@@ -151,6 +151,121 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
 
+        /* Continue Button */
+        .continue-btn {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Matches play-btn border */
+            color: white;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            border-radius: 50px;
+            letter-spacing: 1px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            z-index: 20;
+
+            /* Match Play Button Styles */
+            outline: none;
+            /* box-shadow: 0 0 10px rgba(0,0,0,0.5); Removed to match play-btn initially */
+        }
+
+        .continue-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .continue-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateX(-50%) scale(1.05);
+            /* Maintain X centering while scaling */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .continue-btn.fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 20px);
+        }
+
+        /* NOTE OVERLAY STYLES */
+        .note-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 90%;
+            max-width: 500px;
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 1s ease;
+        }
+
+        .note-container.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1) rotate(-2deg);
+            /* Slightly skewed for realism */
+            pointer-events: auto;
+        }
+
+        .note-paper {
+            background: #fff9c4;
+            /* Yellow note color */
+            padding: 2.5rem;
+            color: #5d4037;
+            font-family: 'Patrick Hand', cursive;
+            /* Handwritten font */
+            font-size: 1.4rem;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            transform-origin: center;
+        }
+
+        /* Pin effect */
+        .note-paper::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #d32f2f;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-paper h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #d32f2f;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+            /* Elegant header */
+        }
+
+        .note-paper p {
+            margin-bottom: 1rem;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 2rem;
+            font-weight: bold;
+            font-size: 1.5rem;
+            font-family: 'Great Vibes', cursive;
+        }
+
         /* Overlay for vignette */
         .vignette {
             position: fixed;
@@ -271,6 +386,22 @@
             <h1 class="main-title">Happy<br>Valentine's<br>Day</h1>
             <p class="subtitle">For the most beautiful flower</p>
             <button class="play-btn" id="startBtn">Click to Bloom</button>
+        </div>
+    </div>
+
+    <!-- Continue Button (Hidden initially) -->
+    <button class="continue-btn" id="continueBtn">Continue to Bloom</button>
+
+    <!-- Note Overlay (Hidden initially) -->
+    <div id="note" class="note-container">
+        <div class="note-paper">
+            <h3>Gửi "Nàng Thơ" phương xa, 💌</h3>
+            <p>Valentine này không có hoa hay quà tận tay được, chỉ có tấm lòng và nỗi nhớ gửi qua đường truyền internet
+                thui 🥺.</p>
+            <p>Cảm ơn em đã làm cho Tết này của anh đặc biệt hơn mọi năm.</p>
+            <p>Tối nay rảnh mình Call Video xíu nhen? Muốn nghe giọng và thấy em cười trực tiếp chứ ngắm qua hình chưa
+                đã! 🥰</p>
+            <div class="signature">- Anh -</div>
         </div>
     </div>
 

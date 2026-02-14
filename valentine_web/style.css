@@ -1,0 +1,43 @@
+/* Continue Button */
+.continue-btn {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 30px;
+    font-size: 1.2rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    cursor: pointer;
+    border-radius: 50px;
+    letter-spacing: 1px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s ease;
+    z-index: 20;
+
+    /* Match Play Button Styles */
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.continue-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.continue-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: translateX(-50%) scale(1.05);
+    /* Maintain X centering while scaling */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.continue-btn.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 20px);
+}

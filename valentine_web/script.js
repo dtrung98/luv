@@ -9,7 +9,13 @@ const petalImage = new Image();
 petalImage.src = 'petal.png';
 
 let isHeartFormed = false;
-const TOTAL_PETALS = 1600; // Increased for density
+let isTextFormed = false; // New state for text
+const TOTAL_PETALS = 1600;
+
+// Hidden Canvas for Text Analysis
+const textCanvas = document.createElement('canvas');
+const textCtx = textCanvas.getContext('2d');
+const continueBtn = document.getElementById('continueBtn');
 
 // Resize canvas to full screen
 function resize() {
@@ -69,7 +75,7 @@ class Petal {
                 this.x = Math.random() * width;
             }
         } else {
-            // Heart Formation Behavior
+            // Heart OR Text Formation Behavior
             // Lerp towards target
             const dx = this.targetX - this.x;
             const dy = this.targetY - this.y;
@@ -77,9 +83,7 @@ class Petal {
             this.x += dx * 0.03; // Smooth transition
             this.y += dy * 0.03;
 
-            // Gentle floating/hovering when close to target (gathered)
-            // Use coherent noise or smooth sine waves based on initial position
-            // Reset rotation speed to be very slow
+            // Gentle floating/hovering 
             this.rotation += 0.005;
 
             // Only apply hover if close enough to look "formed"
@@ -89,83 +93,10 @@ class Petal {
                 const offset = this.targetX * 0.01 + this.targetY * 0.01;
 
                 // Smooth, slow hover effect (the "lo lung")
-                // Now replaced with random sway (dùng đung đưa) around the target
-                // We add the offset to the BASE position (lerped path), but we need to effectively 'float' around it.
-                // The lerp above updates `this.x`, so adding to it cumulatively is wrong because it's a position update.
-                // Instead, we should modify the position *after* the lerp logic or keep the 'base' position separate.
-                // Detailed Approach:
-                // `this.x` tracks the actual position.
-                // `dx * 0.03` moves `this.x` towards `targetX`.
-                // Once close, `this.x` ≈ `targetX`.
-                // We want `this.x = targetX + noise`.
-                // But `this.x` is persistent. 
-                // So we can't just `+=` noise every frame or it drives away.
-                // We must apply the sway as an *additional* temporary offset in DRAW or just act as a force?
-                // Simpler: Once formed, `targetX` is constant. The lerp keeps puling to `targetX`.
-                // If we shift `targetX` itself smoothly?
-                // OR: Add the sway result to `this.x` directly but since the lerp pulls it back, it creates a spring effect!
-                // Yes: `this.x += sway`. Lerp says `this.x += (target-x)*k`.
-                // Equilibrium: `dx = -sway/k`. 
-                // Let's just modify the `target` effectively or add to position.
-
-                // Let's effectively add the sway to the current position but small enough that the lerp doesn't cancel it out instantly?
-                // Actually, if we just want it to "sway around a spot", the simplest way is to render with an offset 
-                // OR modify the `this.targetX` continuously? 
-
-                // Let's modify the `x`/`y` directly with a time-based offset, but we must be careful not to drift.
-                // Correct way: `this.x` follows `targetX`.
-                // Render at `this.x + sway`. 
-                // But if we want actual physics-like sway, we update `this.x`.
-
-                // Let's try adding the sway delta to x/y.
-                // sway = sin(t). d_sway = cos(t)*dt.
-                // Rather than implementing derivative, let's just use the `draw()` offset method or `this.x` injection.
-                // If I modify `this.x` directly:
-                // `this.x = lerp(this.x, this.targetX, 0.03) + sway_delta`.
-
-                // Let's use the DRAW method for the "vibration/sway" to ensure stability of the underlying heart shape.
-                // Wait, the previous code `this.x += ...` ACTUALLY modifies the state, so it fights the lerp.
-                // `this.x += Math.sin(...) * 0.05` -> This accumulates! 
-                // `x` changes by sine wave value EACH FRAME? No. 
-                // `x += sin(t)` means velocity is sin(t). Position is -cos(t).
-                // So the previous code WAS creating movement, but maybe too linear drift or specific path.
-
-                // Let's make it explicitly sway around the target center.
-                // We will relax the lerp slightly or just apply the sway offset to `this.x` by overriding it?
-                // No, better to keep `this.x` converging to `targetX` and then add a "sway offset" to the drawing.
-                // BUT current `draw` uses `this.x`.
-
-                // Revised Plan:
-                // Update `this.x` via lerp to `this.targetX`.
-                // Then `this.displayX = this.x + swayX`.
-                // But I don't want to change `draw()`.
-
-                // Let's just modify `this.x` such that it includes the sway.
-                // `this.x = (this.x * (1-k)) + (targetX + swayX) * k`.
-                // This makes it trail the swaying target. Good enough.
-
-                // Actually the current code:
-                // `this.x += dx * 0.03` acts as the lerp.
-                // We can add `sway` to `targetX` effectively by adjusting the `dx` calculation or adding a force.
-
-                // Let's add the sway to `this.x` directly but subtract the previous frame's sway? Too complex.
-
-                // EASIEST: Just modify `this.x` with a small sinusoidal velocity.
-                // `this.x += Math.cos(time * speed + offset) * amp * 0.05`.
-                // (Velocity is derivative of position. If Pos = Sin, Vel = Cos).
-                // 0.05 factor was from previous code.
-
-                // Revert to:
-                this.x += Math.sin(time * this.swaySpeed + this.swayOffset) * 0.1; // Velocity
-                this.y += Math.cos(time * this.swaySpeed + this.swayOffset) * 0.1;
-
-                // Note: The previous code `this.x += sin(...) * 0.05` was adding velocity.
-                // If we want it to sway "around a spot", the lerp `dx * 0.03` pulls it back to center (Spring force).
-                // So adding a periodic velocity creates a valid orbit/vibration around the attractor.
-                // We just need to tune the Amplitude/Speed.
+                this.x += Math.sin(time + offset) * 0.05;
+                this.y += Math.cos(time * 0.7 + offset) * 0.05;
 
                 // Gentle trembling/fluttering (the "rung rinh")
-                // Randomized per petal
                 this.rotation += Math.sin(time * this.flutterSpeed + this.flutterOffset) * this.flutterAmp;
             }
         }
@@ -246,6 +177,63 @@ function assignHeartTargets() {
     });
 }
 
+// Calculate Text Position (T♥T)
+function assignTextTargets() {
+    // 1. Setup off-screen canvas
+    textCanvas.width = width;
+    textCanvas.height = height;
+
+    // Use a bold, serif font. Size relative to screen.
+    const fontSize = Math.min(width, height) * 0.4;
+    textCtx.font = `bold ${fontSize}px "Playfair Display", serif`;
+    textCtx.fillStyle = 'red';
+    textCtx.textAlign = 'center';
+    textCtx.textBaseline = 'middle';
+
+    // Draw T♥T centered
+    textCtx.fillText('T♥T', width / 2, height / 2);
+
+    // 2. Scan for pixels
+    const imageData = textCtx.getImageData(0, 0, width, height).data;
+    const pixelPoints = [];
+
+    // Step size for sampling - lower is denser but requires more petals
+    // With 1600 petals, step 4 or 5 is good for 1920x1080.
+    const step = 4; // Adjust based on total petals? 
+
+    for (let y = 0; y < height; y += step) {
+        for (let x = 0; x < width; x += step) {
+            const index = (y * width + x) * 4;
+            // Check alpha > 128 (pixel is part of text)
+            if (imageData[index + 3] > 128) {
+                pixelPoints.push({ x, y });
+            }
+        }
+    }
+
+    // 3. Shuffle points to avoid linear filling look
+    for (let i = pixelPoints.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pixelPoints[i], pixelPoints[j]] = [pixelPoints[j], pixelPoints[i]];
+    }
+
+    // 4. Assign to petals
+    petals.forEach((petal, i) => {
+        // Reset flutter for new state? 
+        // Text mode might need less wild flutter to be readable.
+        if (i < pixelPoints.length) {
+            petal.targetX = pixelPoints[i].x;
+            petal.targetY = pixelPoints[i].y;
+            petal.opacity = Math.random() * 0.5 + 0.5; // Ensure visible
+        } else {
+            // Extra petals: float around randomly in background or hide
+            petal.targetX = Math.random() * width;
+            petal.targetY = Math.random() * height;
+            petal.opacity = 0; // Hide unused petals 
+        }
+    });
+}
+
 function initPetals(count) {
     petals = [];
     for (let i = 0; i < count; i++) {
@@ -307,5 +295,107 @@ startBtn.addEventListener('click', () => {
         document.querySelector('p.subtitle').innerText = "Trái tim anh thuộc về em.";
 
         isPlaying = true;
+
+        // --- PHASE 2 SETUP ---
+        // Show "Continue to Bloom" button after delay
+        setTimeout(() => {
+            continueBtn.classList.add('visible');
+        }, 3000); // 3 seconds after heart starts forming
     }
+});
+
+// Calculate Note Rectangle Position
+function assignNoteTargets() {
+    // Determine rectangle size
+    const noteWidth = Math.min(width * 0.8, 500);
+    const noteHeight = noteWidth * 1.2;
+
+    // Center it
+    const startX = (width - noteWidth) / 2;
+    const startY = (height - noteHeight) / 2;
+
+    // Filter to get only currently visible petals (those used in T♥T)
+    const activePetals = [];
+    petals.forEach(p => {
+        if (p.opacity > 0.1) { // Threshold for visibility
+            activePetals.push(p);
+        } else {
+            // Ensure hidden ones stay hidden/away
+            p.targetX = Math.random() * width;
+            p.targetY = Math.random() * height;
+        }
+    });
+
+    const count = activePetals.length;
+    if (count === 0) return;
+
+    // Calculate circumference for border only
+    const perimeter = 2 * (noteWidth + noteHeight);
+
+    // We want to distribute them along the perimeter.
+    // If we have too many petals, we can layer them or fill inside slightly.
+    // If just "border", we map 0..perimeter.
+
+    activePetals.forEach((petal, i) => {
+        // Uniform distribution along perimeter
+        let pos = (i / count) * perimeter;
+
+        let x, y;
+
+        // Logic to map 'pos' to rectangle edge
+        if (pos < noteWidth) {
+            // Top edge: (startX, startY) to (startX + W, startY)
+            x = startX + pos;
+            y = startY;
+        } else if (pos < noteWidth + noteHeight) {
+            // Right edge: (startX + W, startY) to (startX + W, startY + H)
+            x = startX + noteWidth;
+            y = startY + (pos - noteWidth);
+        } else if (pos < 2 * noteWidth + noteHeight) {
+            // Bottom edge: (startX + W, startY + H) to (startX, startY + H)
+            // pos goes from (W+H) to (2W+H)
+            let offset = pos - (noteWidth + noteHeight);
+            x = startX + noteWidth - offset;
+            y = startY + noteHeight;
+        } else {
+            // Left edge: (startX, startY + H) to (startX, startY)
+            let offset = pos - (2 * noteWidth + noteHeight);
+            x = startX;
+            y = startY + noteHeight - offset;
+        }
+
+        // Add some jitter for organic look (messy border)
+        const jitter = (Math.random() - 0.5) * 10;
+
+        petal.targetX = x + jitter;
+        petal.targetY = y + jitter;
+        // Keep visible
+        petal.opacity = Math.random() * 0.3 + 0.6;
+        petal.rotation = (Math.random() - 0.5) * 180;
+    });
+}
+
+// Continue Button Interaction
+continueBtn.addEventListener('click', () => {
+    isTextFormed = true;
+
+    // 1. Fade out button
+    continueBtn.classList.add('fade-out');
+    continueBtn.classList.remove('visible');
+
+    // 2. Form Text "T♥T"
+    assignTextTargets();
+
+    // 3. Wait for reading (5 seconds)
+    setTimeout(() => {
+        // Transform to Note Shape
+        assignNoteTargets();
+
+        // 4. Wait for petals to settle (2 seconds)
+        setTimeout(() => {
+            // Show Real Note Overlay
+            document.getElementById('note').classList.add('visible');
+        }, 2000);
+
+    }, 5000);
 });
