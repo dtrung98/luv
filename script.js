@@ -416,26 +416,29 @@ document.getElementById('acceptBtn').addEventListener('click', () => {
         document.getElementById('stampMark').classList.add('visible');
 
         // 4. Fire Confetti!
-        var duration = 3 * 1000;
-        var end = Date.now() + duration;
+        // We will control confetti intensity with a flag
+        window.confettiIntensity = 1.0;
 
         (function frame() {
-            // launch a few confetti from the left edge
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#ff0000', '#ffeb3b', '#ffffff']
-            });
-            // and launch a few from the right edge
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#ff0000', '#ffeb3b', '#ffffff']
-            });
+            // Amount
+            const pCount = Math.floor(5 * window.confettiIntensity);
+
+            if (pCount > 0) {
+                confetti({
+                    particleCount: pCount,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff0000', '#ffeb3b', '#ffffff']
+                });
+                confetti({
+                    particleCount: pCount,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff0000', '#ffeb3b', '#ffffff']
+                });
+            }
 
             // Keep going forever
             requestAnimationFrame(frame);
@@ -449,5 +452,81 @@ document.getElementById('acceptBtn').addEventListener('click', () => {
             spread: 100
         });
 
-    }, 300); // Slight delay for button shrink animation
+        // 5. Auto Flip after 6 seconds if not interacted
+        flipTimer = setTimeout(() => {
+            // Use the global noteContainer variable or fetch again
+            const noteContainer = document.getElementById('note');
+            if (!hasFlipped && !noteContainer.classList.contains('flipped')) {
+                handleNoteFlip();
+            }
+        }, 6000);
+
+    }, 300);
 });
+
+// Flip state
+let flipTimer = null;
+let hasFlipped = false;
+
+// Flip Logic Function
+function handleNoteFlip() {
+    // Only allow flip if note is visible (opacity 1)
+    if (getComputedStyle(noteContainer).opacity < 1) return;
+
+    if (!noteContainer.classList.contains('flipped')) {
+        // FLIP TO BACK (Message from "Anh")
+        noteContainer.classList.add('flipped');
+
+        // Mark as flipped to prevent auto-flip
+        hasFlipped = true;
+        if (flipTimer) clearTimeout(flipTimer);
+
+        // --- PHASE 2 EFFECTS: BACK SIDE ---
+        // 1. Confetti -> 0.0 (OFF)
+        window.confettiIntensity = 0.2;
+
+        // 2. Add Failing Rose Petals (ON)
+        isHeartFormed = false; // Triggers falling in update()
+        isTextFormed = false;
+        // Reset positions to fall from top
+        petals.forEach(p => {
+            p.resetFalling();
+            // Ensure they are visible
+            p.opacity = Math.random() * 0.5 + 0.5;
+        });
+
+    } else {
+        // FLIP TO FRONT (Original Note)
+        noteContainer.classList.remove('flipped');
+
+        // --- PHASE 1 RESTORE: FRONT SIDE ---
+        // 1. Confetti -> Restore to 1.0 (ON)
+        window.confettiIntensity = 1.0;
+
+        // 2. Stop Falling Rose Petals (OFF / Return to Border?)
+        // The user said "cánh hoa hồng ngừng rơi" (rose petals stop falling).
+        // If we just stop them, they might freeze or disappear.
+        // Let's return them to the "border" formation (assignNoteTargets) which is the state for the front side.
+
+        // Since we are now in "Note Phase", the petals should form the note border.
+        assignNoteTargets();
+        // We need to set a flag so update() knows not to make them fall?
+        // Actually, assignNoteTargets sets targetX/Y. But update() checks isHeartFormed.
+        // We need to set isHeartFormed = true to make them move to targets?
+        // In the original flow:
+        // isHeartFormed=true -> Heart
+        // isTextFormed=true -> Text
+        // Then assignNoteTargets -> Note Border (isHeartFormed is still true usually for movement).
+
+        isHeartFormed = true; // Enable target seeking behavior
+
+        // Still counts as interaction, so no auto-flip
+        hasFlipped = true;
+        if (flipTimer) clearTimeout(flipTimer);
+    }
+}
+
+// Click Interaction for Note Flip
+const noteContainer = document.getElementById('note');
+document.querySelector('.note-inner').addEventListener('click', handleNoteFlip);
+

@@ -196,6 +196,23 @@
             transform: translate(-50%, 20px);
         }
 
+        .signature {
+            text-align: right;
+            margin-top: 2rem;
+            font-weight: bold;
+            font-size: 1.5rem;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .signature-center {
+            text-align: center;
+            margin-top: 2rem;
+            font-weight: bold;
+            font-size: 1.8rem;
+            font-family: 'Great Vibes', cursive;
+            color: #d32f2f;
+        }
+
         /* NOTE OVERLAY STYLES */
         .note-container {
             position: fixed;
@@ -204,10 +221,13 @@
             transform: translate(-50%, -50%) scale(0.8);
             width: 90%;
             max-width: 500px;
+            /* Keep ratio roughly standard note paper */
+            aspect-ratio: 4/5;
             z-index: 30;
             opacity: 0;
             pointer-events: none;
-            transition: all 1s ease;
+            transition: opacity 1s ease, top 0.5s ease;
+            perspective: 1000px;
         }
 
         .note-container.visible {
@@ -217,22 +237,60 @@
             pointer-events: auto;
         }
 
+        .note-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .note-container.flipped .note-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back common */
         .note-paper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+
             background: #fff9c4;
-            /* Yellow note color */
             padding: 2.5rem;
             color: #5d4037;
             font-family: 'Patrick Hand', cursive;
-            /* Handwritten font */
             font-size: 1.4rem;
             line-height: 1.6;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             border-radius: 5px;
-            transform-origin: center;
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center;  Let text flow naturally */
         }
 
-        /* Pin effect */
-        .note-paper::before {
+        .note-paper h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #d32f2f;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .note-paper p {
+            margin-bottom: 1rem;
+        }
+
+        /* Front specific */
+        .note-front {
+            z-index: 2;
+        }
+
+        .note-front::before {
+            /* Pin on Front */
             content: '';
             position: absolute;
             top: -15px;
@@ -243,28 +301,24 @@
             background: #d32f2f;
             border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 10;
         }
 
-        .note-paper h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: #d32f2f;
-            text-align: center;
-            font-family: 'Great Vibes', cursive;
-            /* Elegant header */
+        /* Back specific */
+        .note-back {
+            transform: rotateY(180deg);
+            background: #ffecb3;
+            /* Slightly different shade for back */
+            overflow-y: auto;
+            /* Allow scrolling if text is long */
         }
 
-        .note-paper p {
-            margin-bottom: 1rem;
+        /* Hide scrollbar for clean look */
+        .note-back::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
 
-        .signature {
-            text-align: right;
-            margin-top: 2rem;
-            font-weight: bold;
-            font-size: 1.5rem;
-            font-family: 'Great Vibes', cursive;
-        }
 
         /* Accept Button (Wax Seal) */
         .accept-btn {
@@ -536,16 +590,32 @@
 
     <!-- Note Overlay (Hidden initially) -->
     <div id="note" class="note-container">
-        <div class="note-paper">
-            <h3>Gửi "Nàng Thơ" phương xa, 💌</h3>
-            <p>Valentine này không có hoa hay quà tận tay được, chỉ có tấm lòng và nỗi nhớ gửi qua đường truyền internet
-                thui 🥺.</p>
-            <p>Cảm ơn em đã làm cho Tết này của anh đặc biệt hơn mọi năm.</p>
-            <p>Tối nay rảnh mình Call Video xíu nhen? Muốn nghe giọng và thấy em cười trực tiếp chứ ngắm qua hình chưa
-                đã! 🥰</p>
-            <div class="signature">- Anh -</div>
-            <!-- Dynamic Stamp Mark -->
-            <div id="stampMark" class="stamp-mark">ĐỒNG Ý</div>
+        <div class="note-inner">
+            <!-- Front Side -->
+            <div class="note-paper note-front">
+                <h3>Gửi "Nàng Thơ" phương xa, 💌</h3>
+                <p>Valentine này không có hoa hay quà tận tay được, chỉ có tấm lòng và nỗi nhớ gửi qua đường truyền
+                    internet
+                    thui 🥺.</p>
+                <p>Cảm ơn em đã làm cho Tết này của anh đặc biệt hơn mọi năm.</p>
+                <p>Tối nay rảnh mình Call Video xíu nhen? Muốn nghe giọng và thấy em cười trực tiếp chứ ngắm qua hình
+                    chưa
+                    đã! 🥰</p>
+                <div class="signature">- Anh -</div>
+                <!-- Dynamic Stamp Mark -->
+                <div id="stampMark" class="stamp-mark">ĐỒNG Ý</div>
+            </div>
+
+            <!-- Back Side -->
+            <div class="note-paper note-back">
+                <h3>Gửi "Anh"</h3>
+                <p>Bình thường em hok phải là ngừi giỏi thể hiện tình cảm, chưa bít bọc lộ như nào nên qua màn hình hok
+                    có thể diễn tả đc hết, nma em cũm mong anh bít đc em rất trân trọng những gì anh dành cho em, và anh
+                    cũm đang dần trở thành một “ngừi đặc biệt” của em òi ó 🙄 </p>
+                <p>Năm nay chưa bít phải cư xử chính thức như nào nma hoai mong sắp tới em đc may mắn bù đắp cho anh
+                    nhie, anh cũm phải bù đắp cho em nếu mìn có cơ hội nhá 🫣</p>
+                <p class="signature-center">Háp py niu dia =))))</p>
+            </div>
         </div>
         <!-- Accept Button (Seal) -->
         <div id="acceptBtn" class="accept-btn">
